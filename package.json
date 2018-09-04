@@ -1,0 +1,28 @@
+{
+  "name": "lounas-botti",
+  "version": "0.0.1",
+  "description": "Telegram client for lounas",
+  "main": "src/index.js",
+  "scripts": {
+    "babel-node": "babel-node --presets=latest",
+    "start": "node src/index.js",
+    "dev": "nodemon --inspect src/index --exec babel-node"
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^6.0.0",
+    "telegraf": "^3.23.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "nodemon": "^1.18.4"
+  }
+}
