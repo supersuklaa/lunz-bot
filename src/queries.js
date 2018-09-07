@@ -5,7 +5,12 @@ const search = require('./search');
 module.exports =  {
   editMarkup: async (ctx) => {
     const query = ctx.update.callback_query.data;
-    const { buttons, chat_id, markup_id, offset, places } = ctx.scene.state;
+    const { chat_id, markup_id, offset, places } = ctx.scene.state;
+    const buttons = places
+      .map(p => ({
+        text: p.name,
+        callback_data: p.name,
+      }));
 
     const newOffset = query === 'next'
       ? offset + maxVisibleBtns
@@ -82,6 +87,18 @@ module.exports =  {
       return ctx.answerCbQuery(null);
     } catch (error) {
       console.log('Sending location failed');
+    }
+  },
+
+  deleteLocation: async (ctx) => {
+    try {
+      ctx.telegram.deleteMessage(
+        ctx.scene.state.chat_id,
+        ctx.scene.state.map,
+      );
+      ctx.scene.state.map = null;
+    } catch (error) {
+      console.log('Deleting map message failed');
     }
   },
 };

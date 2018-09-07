@@ -16,15 +16,7 @@ module.exports = (bot) => {
     }
 
     if (ctx.scene.state.map) {
-      try {
-        ctx.telegram.deleteMessage(
-          ctx.scene.state.chat_id,
-          ctx.scene.state.map,
-        );
-        ctx.scene.state.map = null;
-      } catch (error) {
-        console.log('Deleting map message failed');
-      }
+      queries.deleteLocation(ctx);
     }
 
     if (query === 'location') {

@@ -39,9 +39,9 @@ module.exports = (ctx, location) => {
       .filter(f => f.dish.length > 0 && f.time !== 'ei lounasta');
 
     const buttons = places
-      .map(f => ({
-        text: f.name,
-        callback_data: f.name,
+      .map(p => ({
+        text: p.name,
+        callback_data: p.name,
       }));
 
     const navigation = createNavigation(0, places.length);
@@ -62,9 +62,7 @@ module.exports = (ctx, location) => {
       places,
       markup_id: reply.message_id,
       chat_id: reply.chat.id,
-      buttons,
       offset: 0,
     });
-
   });
 };
