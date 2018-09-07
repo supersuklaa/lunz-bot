@@ -14,13 +14,17 @@ module.exports =  {
     const navigation = createNavigation(newOffset, places.length);
 
     try {
-      const keyboard = chunk(buttons.slice(newOffset, newOffset + maxVisibleBtns));
+      let keyboard = chunk(buttons.slice(newOffset, newOffset + maxVisibleBtns));
+
+      if (navigation) {
+        keyboard = keyboard.concat([navigation]);
+      }
 
       await ctx.telegram.editMessageReplyMarkup(
         chat_id,
         markup_id,
         null,
-        { inline_keyboard: keyboard.concat([navigation]) }
+        { inline_keyboard: keyboard }
       );
 
       ctx.scene.state.offset = newOffset;

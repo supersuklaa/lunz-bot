@@ -16,11 +16,15 @@ module.exports = (bot) => {
     }
 
     if (ctx.scene.state.map) {
-      ctx.telegram.deleteMessage(
-        ctx.scene.state.chat_id,
-        ctx.scene.state.map,
-      );
-      ctx.scene.state.map = null;
+      try {
+        ctx.telegram.deleteMessage(
+          ctx.scene.state.chat_id,
+          ctx.scene.state.map,
+        );
+        ctx.scene.state.map = null;
+      } catch (error) {
+        console.log('Deleting map message failed');
+      }
     }
 
     if (query === 'location') {

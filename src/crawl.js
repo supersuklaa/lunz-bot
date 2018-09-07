@@ -22,10 +22,10 @@ module.exports = (ctx, location) => {
     transform: body => cheerio.load(body),
     jar: cookiejar,
   }).then(async ($) => {
-    const places = [];
+    const rawPlaces = [];
 
     $('div.menu.item').each(function(i, item) {
-      places[i] = {
+      rawPlaces[i] = {
         name: $(this).find('.item-header > h3').text(),
         time: $(this).find('.details > p.lunch').text(),
         dish: $(this).find('.menu-item p').map(function() {
@@ -35,25 +35,31 @@ module.exports = (ctx, location) => {
       };
     });
 
+    const places = rawPlaces 
+      .filter(f => f.dish.length > 0 && f.time !== 'ei lounasta');
+
     const buttons = places
-      .filter(f => f.dish.length > 0)
       .map(f => ({
         text: f.name,
         callback_data: f.name,
       }));
 
-    const navigation = createNavigation(0, 1);
+    const navigation = createNavigation(0, places.length);
 
-    const keyboard = chunk(buttons.slice(0, maxVisibleBtns));
+    let keyboard = chunk(buttons.slice(0, maxVisibleBtns));
+
+    if (navigation) {
+      keyboard = keyboard.concat([navigation]);
+    }
 
     const reply = await ctx.reply(
       `Osoitteesta ${location.formattedAddress} löytyi esim:`, {
-        reply_markup: { inline_keyboard: keyboard.concat([navigation]) }
+        reply_markup: { inline_keyboard: keyboard }
       }
     );
 
     return ctx.scene.enter('activeMenus', {
-      places: places.filter(f => f.dish.length > 0),
+      places,
       markup_id: reply.message_id,
       chat_id: reply.chat.id,
       buttons,

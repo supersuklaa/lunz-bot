@@ -29,6 +29,10 @@ module.exports = {
       callback_data: 'prev',
     };
 
+    if (total <= maxVisibleBtns) {
+      return null;
+    }
+
     if (offset - maxVisibleBtns < 0) {
       return [nextBtn];
     }
