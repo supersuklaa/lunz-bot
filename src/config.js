@@ -12,4 +12,6 @@ module.exports = {
     lounaat: 'https://lounaat.info',
     transit: 'http://api.digitransit.fi/geocoding/v1',
   },
+  maxBtnsInRow: 1,
+  maxVisibleBtns: 3,
 };
