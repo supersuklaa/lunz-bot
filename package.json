@@ -4,25 +4,19 @@
   "description": "Telegram client for lounas",
   "main": "src/index.js",
   "scripts": {
-    "babel-node": "babel-node --presets=latest",
     "start": "node src/index.js",
-    "dev": "nodemon --inspect src/index --exec babel-node"
-  },
-  "babel": {
-    "presets": [
-      "env"
-    ]
+    "dev": "nodemon --inspect src/index"
   },
   "license": "MIT",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
     "dotenv": "^6.0.0",
-    "telegraf": "^3.23.0"
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "telegraf": "^3.23.0",
+    "tough-cookie": "^2.4.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
     "nodemon": "^1.18.4"
   }
 }

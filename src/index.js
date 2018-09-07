@@ -1,6 +1,6 @@
-import config from './config';
-import createBot from './bot';
-import Telegraf from 'telegraf';
+const config = require('./config');
+const createBot = require('./bot');
+const Telegraf = require('telegraf');
 
 (async function () {
   const options = { telegram: { webhookReply: false } };
