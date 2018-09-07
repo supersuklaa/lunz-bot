@@ -70,7 +70,7 @@ module.exports = {
       });
   },
 
-  address: async (address) => {
+  address: (address) => {
     const query = createQuery({
       size: '1',
       text: encodeURI(address),
@@ -78,7 +78,7 @@ module.exports = {
 
     const url = `${urls.transit}/search?${query}`;
 
-    const reply = await rp(url)
+    const reply = rp(url)
       .then((res) => {
         try {
           const { features } = JSON.parse(res);
