@@ -28,6 +28,8 @@ module.exports = {
             lng: features[0].geometry.coordinates[0],
             formattedAddress: features[0].properties.label,
           });
+          
+          return null;
         } catch (err) {
           console.log('Digitransit search query parsing failed');
         }
@@ -61,6 +63,8 @@ module.exports = {
             lng: features[0].geometry.coordinates[0],
             formattedAddress: `${name}, ${postalcode} ${locality}`,
           });
+
+          return null;
         } catch (error) {
           console.log('Digitransit reverse query parsing failed');
         }

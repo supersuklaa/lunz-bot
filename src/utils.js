@@ -20,12 +20,12 @@ module.exports = {
 
   createNavigation: (offset, total) => {
     const nextBtn = {
-      text: 'Seuraavat',
+      text: 'Seuraavat ➡️',
       callback_data: 'next',
     };
 
     const prevBtn = {
-      text: 'Edelliset',
+      text: '⬅️ Edelliset',
       callback_data: 'prev',
     };
 

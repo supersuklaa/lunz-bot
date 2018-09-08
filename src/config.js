@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 module.exports = {
   env: {
     prod: process.env.NODE_ENV === 'production',

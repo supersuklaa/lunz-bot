@@ -38,6 +38,10 @@ module.exports = (ctx, location) => {
     const places = rawPlaces 
       .filter(f => f.dish.length > 0 && f.time !== 'ei lounasta');
 
+    if (places.length < 1) {
+      return ctx.reply('Ei löytynyt lounasta tällä sijainnilla juuri nyt! Kannattaa vielä kokeilla keskeisemmällä sijainnilla jos mahdollista 🙂');
+    }
+
     const buttons = places.slice(0, maxVisibleBtns)
       .map(p => ({
         text: p.name,
@@ -46,11 +50,9 @@ module.exports = (ctx, location) => {
 
     const navigation = createNavigation(0, places.length);
 
-    let keyboard = chunk(buttons);
-
-    if (navigation) {
-      keyboard = keyboard.concat([navigation]);
-    }
+    const keyboard = navigation
+      ? chunk(buttons).concat([navigation])
+      : chunk(buttons);
 
     const reply = await ctx.reply(
       `Osoitteen ${location.formattedAddress} lähestöltä löytyi:`, {

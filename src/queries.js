@@ -10,7 +10,7 @@ module.exports =  {
     const newOffset = query === 'next'
       ? offset + maxVisibleBtns
       : offset - maxVisibleBtns;
-      
+
     const buttons = places.slice(newOffset, newOffset + maxVisibleBtns)
       .map(p => ({
         text: p.name,
@@ -20,11 +20,9 @@ module.exports =  {
     const navigation = createNavigation(newOffset, places.length);
 
     try {
-      let keyboard = chunk(buttons);
-
-      if (navigation) {
-        keyboard = keyboard.concat([navigation]);
-      }
+      const keyboard = navigation
+        ? chunk(buttons).concat([navigation])
+        : chunk(buttons);
 
       await ctx.telegram.editMessageReplyMarkup(
         chat_id,
