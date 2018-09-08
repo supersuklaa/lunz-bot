@@ -5,12 +5,15 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon --inspect src/index"
+    "dev": "nodemon --inspect src/index",
+    "migrate": "node-pg-migrate"
   },
   "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "dotenv": "^6.0.0",
+    "node-pg-migrate": "^3.10.1",
+    "pg": "^7.4.3",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "telegraf": "^3.23.0",

@@ -3,6 +3,7 @@ const Stage = require('telegraf/stage');
 const Scene = require('telegraf/scenes/base');
 
 const queries = require('./queries');
+const db = require('./db');
 
 module.exports = (bot) => {
   const stage = new Stage();
@@ -13,6 +14,14 @@ module.exports = (bot) => {
 
     if (query === 'next' || query === 'prev') {
       return queries.navigateMenus(ctx);
+    }
+
+    if (query === 'favoriteAdd') {
+      return db.favorite.add(ctx);
+    }
+
+    if (query === 'favoriteRemove') {
+      return db.favorite.remove(ctx);
     }
 
     if (ctx.scene.state.map) {

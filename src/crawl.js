@@ -4,6 +4,7 @@ const tough = require('tough-cookie');
 
 const { urls, maxVisibleBtns } = require('./config');
 const { chunk, createNavigation } = require('./utils');
+const db = require('./db');
 
 module.exports = (ctx, location) => {
   let cookie = new tough.Cookie({
@@ -42,10 +43,14 @@ module.exports = (ctx, location) => {
       return ctx.reply('Ei löytynyt lounasta tällä sijainnilla juuri nyt! Kannattaa vielä kokeilla keskeisemmällä sijainnilla jos mahdollista 🙂');
     }
 
-    const buttons = places.slice(0, maxVisibleBtns)
-      .map(p => ({
-        text: p.name,
-        callback_data: p.name,
+    const favs = await db.favorite
+      .find({ user_id: ctx.from.id })
+
+    const buttons = places
+      .slice(0, maxVisibleBtns)
+      .map(({ name }) => ({
+        text: favs.includes(name) ? `⭐️ ${name}` : name,
+        callback_data: name,
       }));
 
     const navigation = createNavigation(0, places.length);
@@ -55,7 +60,7 @@ module.exports = (ctx, location) => {
       : chunk(buttons);
 
     const reply = await ctx.reply(
-      `Osoitteen ${location.formattedAddress} lähestöltä löytyi:`, {
+      `Osoitteen ${location.formattedAddress} lähistöltä löytyi:`, {
         reply_markup: { inline_keyboard: keyboard }
       }
     );

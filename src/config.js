@@ -15,6 +15,9 @@ module.exports = {
     lounaat: 'https://lounaat.info',
     transit: 'http://api.digitransit.fi/geocoding/v1',
   },
+  db: {
+    connectStr: process.env.DATABASE_URL,
+  },
   maxBtnsInRow: 1,
   maxVisibleBtns: 3,
 };

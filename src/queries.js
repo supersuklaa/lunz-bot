@@ -1,19 +1,23 @@
 const { chunk, createNavigation } = require('./utils');
 const { maxVisibleBtns } = require('./config');
 const search = require('./search');
+const db = require('./db');
 
 module.exports =  {
   navigateMenus: async (ctx) => {
-    const query = ctx.update.callback_query.data;
+    const query = ctx.update.callback_query;
     const { chat_id, markup_id, offset, places } = ctx.scene.state;
 
-    const newOffset = query === 'next'
+    const newOffset = query.data === 'next'
       ? offset + maxVisibleBtns
       : offset - maxVisibleBtns;
 
+    const favs = await db.favorite
+      .find({ user_id: ctx.from.id });
+
     const buttons = places.slice(newOffset, newOffset + maxVisibleBtns)
       .map(p => ({
-        text: p.name,
+        text: favs.includes(name) ? `⭐️ ${name}` : name,
         callback_data: p.name,
       }));
 
@@ -40,15 +44,28 @@ module.exports =  {
   },
 
   chooseMenu: async (ctx, place) => {
+    const favs = await db.favorite
+      .find({ user_id: ctx.from.id })
+      
     try {
       const text = `<b>${place.name}</b> <i>${place.time}</i>\n${place.dish}`;
       const extra = {
         parse_mode: 'html',
         reply_markup: {
-          inline_keyboard: [[{
-            text: 'Sijainti',
-            callback_data: 'location',
-          }]]
+          inline_keyboard: [[
+            {
+              text: 'Sijainti',
+              callback_data: 'location',
+            },
+            {
+              text: favs.includes(place.name)
+                ? 'Poista suosikeista'
+                : 'Lisää suosikkeihin',
+              callback_data: favs.includes(place.name)
+                ? 'favoriteRemove'
+                : 'favoriteAdd',
+            }
+          ]]
         },
       };
       const reply = ctx.scene.state.message_id ?
