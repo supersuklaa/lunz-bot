@@ -2,12 +2,12 @@ const rp = require('request-promise');
 
 const crawl = require('./crawl');
 const { urls } = require('./config');
-const { createQuery } = require('./utils');
+const { createURIparams } = require('./utils');
 
 module.exports = {
   message: (ctx) => {
     ctx.scene.leave();
-    const query = createQuery({
+    const query = createURIparams({
       size: '1',
       text: encodeURI(ctx.message.text),
     });
@@ -41,7 +41,7 @@ module.exports = {
     ctx.scene.leave();
     const { latitude, longitude } = ctx.message.location;
     
-    const query = createQuery({
+    const query = createURIparams({
       size: '1',
       'point.lat': latitude,
       'point.lon': longitude,
@@ -71,7 +71,7 @@ module.exports = {
   },
 
   address: (address) => {
-    const query = createQuery({
+    const query = createURIparams({
       size: '1',
       text: encodeURI(address),
     });

@@ -3,23 +3,24 @@ const { maxVisibleBtns } = require('./config');
 const search = require('./search');
 
 module.exports =  {
-  editMarkup: async (ctx) => {
+  navigateMenus: async (ctx) => {
     const query = ctx.update.callback_query.data;
     const { chat_id, markup_id, offset, places } = ctx.scene.state;
-    const buttons = places
+
+    const newOffset = query === 'next'
+      ? offset + maxVisibleBtns
+      : offset - maxVisibleBtns;
+      
+    const buttons = places.slice(newOffset, newOffset + maxVisibleBtns)
       .map(p => ({
         text: p.name,
         callback_data: p.name,
       }));
 
-    const newOffset = query === 'next'
-      ? offset + maxVisibleBtns
-      : offset - maxVisibleBtns;
-
     const navigation = createNavigation(newOffset, places.length);
 
     try {
-      let keyboard = chunk(buttons.slice(newOffset, newOffset + maxVisibleBtns));
+      let keyboard = chunk(buttons);
 
       if (navigation) {
         keyboard = keyboard.concat([navigation]);

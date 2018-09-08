@@ -38,7 +38,7 @@ module.exports = (ctx, location) => {
     const places = rawPlaces 
       .filter(f => f.dish.length > 0 && f.time !== 'ei lounasta');
 
-    const buttons = places
+    const buttons = places.slice(0, maxVisibleBtns)
       .map(p => ({
         text: p.name,
         callback_data: p.name,
@@ -46,14 +46,14 @@ module.exports = (ctx, location) => {
 
     const navigation = createNavigation(0, places.length);
 
-    let keyboard = chunk(buttons.slice(0, maxVisibleBtns));
+    let keyboard = chunk(buttons);
 
     if (navigation) {
       keyboard = keyboard.concat([navigation]);
     }
 
     const reply = await ctx.reply(
-      `Osoitteesta ${location.formattedAddress} löytyi esim:`, {
+      `Osoitteen ${location.formattedAddress} lähestöltä löytyi:`, {
         reply_markup: { inline_keyboard: keyboard }
       }
     );

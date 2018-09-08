@@ -12,7 +12,7 @@ module.exports = (bot) => {
     const query = ctx.update.callback_query.data;
 
     if (query === 'next' || query === 'prev') {
-      return queries.editMarkup(ctx);
+      return queries.navigateMenus(ctx);
     }
 
     if (ctx.scene.state.map) {

@@ -5,8 +5,9 @@ module.exports = {
     test: process.env.NODE_ENV === 'test',
   },
   tg: {
-    token: process.env.TELEGRAM_TOKEN || '666069870:AAF4ZfNFA0A17ChrOoE1CbGEywbo5PnW_KI',
+    token: process.env.TELEGRAM_TOKEN,
     port: parseInt(process.env.PORT, 10) || 6000,
+    webhook: process.env.WEBHOOK_DOMAIN,
   },
   urls: {
     lounaat: 'https://lounaat.info',

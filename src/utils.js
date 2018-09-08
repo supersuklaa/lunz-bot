@@ -12,7 +12,7 @@ module.exports = {
     return chunks;
   },
 
-  createQuery: (params) => {
+  createURIparams: (params) => {
     return Object.keys(params)
       .map(k => `${k}=${params[k]}`)
       .join('&');
