@@ -1,7 +1,7 @@
-const { chunk, createNavigation } = require('./utils');
 const { maxVisibleBtns } = require('./config');
 const search = require('./search');
 const db = require('./db');
+const kbBuilder = require('./keyboard');
 
 module.exports =  {
   navigateMenus: async (ctx) => {
@@ -12,21 +12,13 @@ module.exports =  {
       ? offset + maxVisibleBtns
       : offset - maxVisibleBtns;
 
-    const favs = await db.favorite
-      .find({ user_id: ctx.from.id });
-
-    const buttons = places.slice(newOffset, newOffset + maxVisibleBtns)
-      .map(p => ({
-        text: favs.includes(name) ? `⭐️ ${name}` : name,
-        callback_data: p.name,
-      }));
-
-    const navigation = createNavigation(newOffset, places.length);
+    const buttons = kbBuilder.places(places, ctx.from.id, newOffset);
+    const navigation = kbBuilder.nav(newOffset, places.length);
 
     try {
       const keyboard = navigation
-        ? chunk(buttons).concat([navigation])
-        : chunk(buttons);
+        ? buttons.concat([navigation])
+        : buttons;
 
       await ctx.telegram.editMessageReplyMarkup(
         chat_id,
@@ -44,28 +36,19 @@ module.exports =  {
   },
 
   chooseMenu: async (ctx, place) => {
-    const favs = await db.favorite
-      .find({ user_id: ctx.from.id })
-      
+    const favs = await db.favorite.find({ user_id: ctx.from.id })
+
+    const keyboard = await kbBuilder.tools({
+      address: place.address,
+      favorite: favs.includes(place.name) ? 'remove' : 'add',
+    });
+
     try {
       const text = `<b>${place.name}</b> <i>${place.time}</i>\n${place.dish}`;
       const extra = {
         parse_mode: 'html',
         reply_markup: {
-          inline_keyboard: [[
-            {
-              text: 'Sijainti',
-              callback_data: 'location',
-            },
-            {
-              text: favs.includes(place.name)
-                ? 'Poista suosikeista'
-                : 'Lisää suosikkeihin',
-              callback_data: favs.includes(place.name)
-                ? 'favoriteRemove'
-                : 'favoriteAdd',
-            }
-          ]]
+          inline_keyboard: keyboard,
         },
       };
       const reply = ctx.scene.state.message_id ?
@@ -84,7 +67,7 @@ module.exports =  {
 
       return ctx.answerCbQuery(null);
     } catch (err) {
-      console.log('Menu message editing failed');
+      console.log(`Menu message editing failed: ${err}`);
     }
   },
 
@@ -116,5 +99,56 @@ module.exports =  {
     } catch (error) {
       console.log('Deleting map message failed');
     }
+  },
+
+  toggleFavorite: async (ctx) => {
+    const query = ctx.update.callback_query;
+    const place = ctx.scene.state.current_place;
+    const { chat_id, markup_id, places, offset } = ctx.scene.state;
+
+    const add = query.data === 'favoriteAdd';
+
+    try {
+      if (add) {
+        await db.favorite.add(query.from.id, place);
+      } else {
+        await db.favorite.remove(query.from.id, place);
+      }
+      const { address } = places.find(p => p.name === place);
+
+      const keyboard = await kbBuilder.tools({
+        address,
+        favorite: add ? 'remove' : 'add',
+      });
+
+      await ctx.telegram.editMessageReplyMarkup(
+        query.from.id,
+        query.message.message_id,
+        null,
+        { inline_keyboard: keyboard }
+      );
+
+      const buttons = await kbBuilder.places(places, ctx.from.id, offset);
+      const navigation = kbBuilder.nav(offset, places.length);
+
+      const menuKeyboard = navigation
+        ? buttons.concat([navigation])
+        : buttons;
+
+      await ctx.telegram.editMessageReplyMarkup(
+        chat_id,
+        markup_id,
+        null,
+        { inline_keyboard: menuKeyboard }
+      );
+
+      return ctx.answerCbQuery(add ? 'Lisätty' : 'Poistettu');
+    } catch (err) {
+      if (add) {
+        console.log(`Adding favorite to db failed: ${err}`);
+      } else {
+        console.log(`Removing favorite from db failed: ${err}`);
+      }
+    } 
   },
 };

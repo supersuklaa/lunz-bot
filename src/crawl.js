@@ -2,9 +2,8 @@ const cheerio = require('cheerio');
 const rp = require('request-promise');
 const tough = require('tough-cookie');
 
-const { urls, maxVisibleBtns } = require('./config');
-const { chunk, createNavigation } = require('./utils');
-const db = require('./db');
+const { urls } = require('./config');
+const kbBuilder = require('./keyboard');
 
 module.exports = (ctx, location) => {
   let cookie = new tough.Cookie({
@@ -43,21 +42,12 @@ module.exports = (ctx, location) => {
       return ctx.reply('Ei löytynyt lounasta tällä sijainnilla juuri nyt! Kannattaa vielä kokeilla keskeisemmällä sijainnilla jos mahdollista 🙂');
     }
 
-    const favs = await db.favorite
-      .find({ user_id: ctx.from.id })
+    const buttons = await kbBuilder.places(places, ctx.from.id);
 
-    const buttons = places
-      .slice(0, maxVisibleBtns)
-      .map(({ name }) => ({
-        text: favs.includes(name) ? `⭐️ ${name}` : name,
-        callback_data: name,
-      }));
-
-    const navigation = createNavigation(0, places.length);
-
+    const navigation = kbBuilder.nav(0, places.length);
     const keyboard = navigation
-      ? chunk(buttons).concat([navigation])
-      : chunk(buttons);
+      ? buttons.concat([navigation])
+      : buttons;
 
     const reply = await ctx.reply(
       `Osoitteen ${location.formattedAddress} lähistöltä löytyi:`, {

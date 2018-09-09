@@ -16,12 +16,8 @@ module.exports = (bot) => {
       return queries.navigateMenus(ctx);
     }
 
-    if (query === 'favoriteAdd') {
-      return db.favorite.add(ctx);
-    }
-
-    if (query === 'favoriteRemove') {
-      return db.favorite.remove(ctx);
+    if (query === 'favoriteAdd' || query === 'favoriteRemove') {
+      return queries.toggleFavorite(ctx);
     }
 
     if (ctx.scene.state.map) {
