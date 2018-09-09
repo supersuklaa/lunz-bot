@@ -40,15 +40,18 @@ module.exports = {
     return ctx.answerCbQuery(null);
   },
 
-  chooseMenu: async (ctx, place) => {
-    const favs = await db.favorite.find({ user_id: ctx.from.id });
-
-    const keyboard = await kbBuilder.tools({
-      address: place.address,
-      favorite: favs.includes(place.name) ? 'remove' : 'add',
-    });
-
+  chooseMenu: async (ctx) => {
     try {
+      const place = ctx.scene.state.places
+        .find(p => p.name === ctx.update.callback_query.data);
+
+      const favs = await db.favorite.find({ user_id: ctx.from.id });
+
+      const keyboard = await kbBuilder.tools({
+        address: place.address,
+        favorite: favs.includes(place.name) ? 'remove' : 'add',
+      });
+
       const text = `<b>${place.name}</b> <i>${place.time}</i>\n${place.dish}`;
       const extra = {
         parse_mode: 'html',
@@ -94,11 +97,13 @@ module.exports = {
   },
 
   deleteLocation: async (ctx) => {
-    try {
-      ctx.telegram.deleteMessage(ctx.from.id, ctx.scene.state.map);
-      ctx.scene.state.map = null;
-    } catch (err) {
-      console.log(`Deleting map message failed: ${err}`);
+    if (ctx.scene.state.map) {
+      try {
+        await ctx.telegram.deleteMessage(ctx.from.id, ctx.scene.state.map);
+        ctx.scene.state.map = null;
+      } catch (err) {
+        console.log(`Deleting map message failed: ${err}`);
+      }
     }
   },
 
@@ -129,19 +134,25 @@ module.exports = {
         { inline_keyboard: keyboard },
       );
 
-      const buttons = await kbBuilder.places(places, ctx.from.id, offset);
-      const navigation = kbBuilder.nav(places.length, offset);
+      const currentBtnIsVisible = places
+        .slice(offset, offset + maxVisibleBtns)
+        .find(p => p.name === place);
 
-      const menuKeyboard = navigation
-        ? buttons.concat([navigation])
-        : buttons;
+      if (currentBtnIsVisible) { // toggle star emoji in place name
+        const buttons = await kbBuilder.places(places, ctx.from.id, offset);
+        const navigation = kbBuilder.nav(places.length, offset);
 
-      await ctx.telegram.editMessageReplyMarkup(
-        ctx.from.id,
-        ctx.scene.state.markup_id,
-        null,
-        { inline_keyboard: menuKeyboard },
-      );
+        const menuKeyboard = navigation
+          ? buttons.concat([navigation])
+          : buttons;
+
+        await ctx.telegram.editMessageReplyMarkup(
+          ctx.from.id,
+          ctx.scene.state.markup_id,
+          null,
+          { inline_keyboard: menuKeyboard },
+        );
+      }
 
       return ctx.answerCbQuery(add ? 'Lisätty' : 'Poistettu');
     } catch (err) {
