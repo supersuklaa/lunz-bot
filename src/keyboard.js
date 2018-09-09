@@ -19,19 +19,17 @@ module.exports = {
           text: 'Poista suosikeista',
           callback_data: 'favoriteRemove',
         });
-      }
-      
-      else if (opt.favorite === 'add') {
+      } else if (opt.favorite === 'add') {
         btns.push({
           text: 'Lisää suosikkeihin',
           callback_data: 'favoriteAdd',
         });
-      } 
+      }
     }
 
     return [btns];
   },
-  
+
   places: async (places, user, offset = 0) => {
     const favs = await db.favorite.find({ user_id: user });
 
@@ -45,7 +43,7 @@ module.exports = {
     return chunk(buttons);
   },
 
-  nav: (offset, total) => {
+  nav: (total, offset = 0) => {
     const nextBtn = {
       text: 'Seuraavat ➡️',
       callback_data: 'next',

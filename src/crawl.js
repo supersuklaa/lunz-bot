@@ -47,7 +47,7 @@ module.exports = (ctx, location) => {
 
     const buttons = await kbBuilder.places(places, ctx.from.id);
 
-    const navigation = kbBuilder.nav(0, places.length);
+    const navigation = kbBuilder.nav(places.length);
     const keyboard = navigation
       ? buttons.concat([navigation])
       : buttons;
