@@ -6,6 +6,6 @@ module.exports = (ctx) => {
         request_location: true,
       }]],
       resize_keyboard: true,
-    }
+    },
   });
 };

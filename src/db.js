@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 const config = require('./config');
 
-module.exports =  {
+module.exports = {
   favorite: {
     add: async (user, place) => {
       const client = new Client(config.db);
@@ -15,7 +15,7 @@ module.exports =  {
     },
 
     remove: async (user, place) => {
-      const text = `DELETE FROM favorites WHERE user_id = $1 AND place = $2 RETURNING *`;
+      const text = 'DELETE FROM favorites WHERE user_id = $1 AND place = $2 RETURNING *';
 
       const client = new Client(config.db);
       client.connect();
@@ -26,7 +26,7 @@ module.exports =  {
     },
 
     find: async (opt) => {
-      const keyStr = Object.keys(opt).map((k, i) => `${k} = $${1+i}`).join(' AND ');
+      const keyStr = Object.keys(opt).map((k, i) => `${k} = $${1 + i}`).join(' AND ');
       const text = `SELECT * FROM favorites WHERE ${keyStr}`;
       const values = Object.values(opt);
 
@@ -36,7 +36,7 @@ module.exports =  {
       const result = await client.query(text, values)
         .then(res => res.rows)
         .catch(e => console.error(e.stack));
-      
+
       return result.map(f => f.place);
     },
   },

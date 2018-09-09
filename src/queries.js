@@ -12,7 +12,7 @@ module.exports =  {
       ? offset + maxVisibleBtns
       : offset - maxVisibleBtns;
 
-    const buttons = kbBuilder.places(places, ctx.from.id, newOffset);
+    const buttons = await kbBuilder.places(places, ctx.from.id, newOffset);
     const navigation = kbBuilder.nav(newOffset, places.length);
 
     try {

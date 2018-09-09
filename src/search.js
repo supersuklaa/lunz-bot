@@ -28,21 +28,21 @@ module.exports = {
             lng: features[0].geometry.coordinates[0],
             formattedAddress: features[0].properties.label,
           });
-          
-          return null;
         } catch (err) {
           console.log(`Digitransit search query parsing failed: ${err}`);
         }
+
+        return null;
       })
       .catch((err) => {
-        console.log(`Digitransit search query to ${url} returned error`);
+        console.log(`Digitransit search query to ${url} returned error: ${err}`);
       });
   },
 
   location: (ctx) => {
     ctx.scene.leave();
     const { latitude, longitude } = ctx.message.location;
-    
+
     const query = createURIparams({
       size: '1',
       'point.lat': latitude,
@@ -63,11 +63,11 @@ module.exports = {
             lng: features[0].geometry.coordinates[0],
             formattedAddress: `${name}, ${postalcode} ${locality}`,
           });
-
-          return null;
         } catch (err) {
           console.log(`Digitransit reverse query parsing failed: ${err}`);
         }
+
+        return null;
       })
       .catch((err) => {
         console.log(`Digitransit reverse query to ${url} returned error: ${err}`);
@@ -90,10 +90,12 @@ module.exports = {
           return {
             lat: features[0].geometry.coordinates[1],
             lng: features[0].geometry.coordinates[0],
-          }
+          };
         } catch (err) {
           console.log(`Digitransit search query parsing failed: ${err}`);
         }
+
+        return null;
       })
       .catch((err) => {
         console.log(`Digitransit search query to ${url} returned error: ${err}`);

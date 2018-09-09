@@ -11,11 +11,11 @@ module.exports = (bot) => {
   organizer.on('callback_query', async (ctx) => {
     const query = ctx.update.callback_query.data;
 
-    if (query === 'next' || query === 'prev') {
+    if (query === 'next' || query === 'prev') {
       return queries.navigateMenus(ctx);
     }
 
-    if (query === 'favoriteAdd' || query === 'favoriteRemove') {
+    if (query === 'favoriteAdd' || query === 'favoriteRemove') {
       return queries.toggleFavorite(ctx);
     }
 
@@ -32,11 +32,11 @@ module.exports = (bot) => {
     if (place && ctx.scene.state.current_place !== query) {
       return queries.chooseMenu(ctx, place);
     }
-      
+
     return ctx.answerCbQuery(null);
   });
 
-  stage.register(organizer)
+  stage.register(organizer);
 
   bot.use(session());
   bot.use(stage.middleware());

@@ -1,8 +1,8 @@
+const Telegraf = require('telegraf');
 const config = require('./config');
 const createBot = require('./bot');
-const Telegraf = require('telegraf');
 
-(async function () {
+const start = async () => {
   const options = { telegram: { webhookReply: false } };
   const bot = await createBot(new (Telegraf)(config.tg.token, options));
 
@@ -19,4 +19,6 @@ const Telegraf = require('telegraf');
     await bot.startPolling();
     console.log('Polling started for updates');
   }
-})();
+};
+
+start();
