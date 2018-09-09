@@ -3,17 +3,22 @@ const search = require('./search');
 const db = require('./db');
 const kbBuilder = require('./keyboard');
 
-module.exports =  {
+module.exports = {
   navigateMenus: async (ctx) => {
     const query = ctx.update.callback_query;
-    const { markup_id, offset, places } = ctx.scene.state;
+    const { offset, places } = ctx.scene.state;
 
     const newOffset = query.data === 'next'
       ? offset + maxVisibleBtns
       : offset - maxVisibleBtns;
 
+    if (newOffset < 0 || newOffset >= places.length) {
+      // This is possible if user clicks a button repeatedly
+      return ctx.answerCbQuery(null);
+    }
+
     const buttons = await kbBuilder.places(places, ctx.from.id, newOffset);
-    const navigation = kbBuilder.nav(newOffset, places.length);
+    const navigation = kbBuilder.nav(places.length, newOffset);
 
     try {
       const keyboard = navigation
@@ -22,21 +27,21 @@ module.exports =  {
 
       await ctx.telegram.editMessageReplyMarkup(
         ctx.from.id,
-        markup_id,
+        ctx.scene.state.markup_id,
         null,
-        { inline_keyboard: keyboard }
+        { inline_keyboard: keyboard },
       );
 
       ctx.scene.state.offset = newOffset;
-
-      return ctx.answerCbQuery(null);
     } catch (err) {
       console.log(`Markup editing failed: ${err}`);
     }
+
+    return ctx.answerCbQuery(null);
   },
 
   chooseMenu: async (ctx, place) => {
-    const favs = await db.favorite.find({ user_id: ctx.from.id })
+    const favs = await db.favorite.find({ user_id: ctx.from.id });
 
     const keyboard = await kbBuilder.tools({
       address: place.address,
@@ -51,41 +56,41 @@ module.exports =  {
           inline_keyboard: keyboard,
         },
       };
-      const reply = ctx.scene.state.message_id ?
-        await ctx.telegram.editMessageText(
+
+      const reply = ctx.scene.state.message_id
+        ? await ctx.telegram.editMessageText(
           ctx.from.id,
           ctx.scene.state.message_id,
           null,
           text,
           extra,
-        ) :
-        await ctx.reply(text, extra)
-      ;
+        )
+        : await ctx.reply(text, extra);
 
       ctx.scene.state.message_id = reply.message_id;
       ctx.scene.state.current_place = place.name;
-
-      return ctx.answerCbQuery(null);
     } catch (err) {
       console.log(`Menu message editing failed: ${err}`);
     }
+
+    return ctx.answerCbQuery(null);
   },
 
   sendLocation: async (ctx) => {
     try {
       const current = ctx.scene.state.current_place;
       const place = ctx.scene.state.places.find(p => p.name === current);
-      
+
       const { lat, lng } = await search.address(place.address);
 
       const reply = await ctx.telegram.sendLocation(ctx.from.id, lat, lng);
 
       ctx.scene.state.map = reply.message_id;
-
-      return ctx.answerCbQuery(null);
     } catch (err) {
       console.log(`Sending location failed: ${err}`);
     }
+
+    return ctx.answerCbQuery(null);
   },
 
   deleteLocation: async (ctx) => {
@@ -100,7 +105,7 @@ module.exports =  {
   toggleFavorite: async (ctx) => {
     const query = ctx.update.callback_query;
     const place = ctx.scene.state.current_place;
-    const { markup_id, places, offset } = ctx.scene.state;
+    const { places, offset } = ctx.scene.state;
 
     const add = query.data === 'favoriteAdd';
 
@@ -121,11 +126,11 @@ module.exports =  {
         query.from.id,
         query.message.message_id,
         null,
-        { inline_keyboard: keyboard }
+        { inline_keyboard: keyboard },
       );
 
       const buttons = await kbBuilder.places(places, ctx.from.id, offset);
-      const navigation = kbBuilder.nav(offset, places.length);
+      const navigation = kbBuilder.nav(places.length, offset);
 
       const menuKeyboard = navigation
         ? buttons.concat([navigation])
@@ -133,9 +138,9 @@ module.exports =  {
 
       await ctx.telegram.editMessageReplyMarkup(
         ctx.from.id,
-        markup_id,
+        ctx.scene.state.markup_id,
         null,
-        { inline_keyboard: menuKeyboard }
+        { inline_keyboard: menuKeyboard },
       );
 
       return ctx.answerCbQuery(add ? 'Lisätty' : 'Poistettu');
@@ -145,6 +150,8 @@ module.exports =  {
       } else {
         console.log(`Removing favorite from db failed: ${err}`);
       }
-    } 
+    }
+
+    return ctx.answerCbQuery(null);
   },
 };
