@@ -58,7 +58,6 @@ module.exports = (ctx, location) => {
     return ctx.scene.enter('activeMenus', {
       places,
       markup_id: reply.message_id,
-      chat_id: reply.chat.id,
       offset: 0,
     });
   });

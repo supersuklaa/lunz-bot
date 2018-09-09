@@ -31,7 +31,7 @@ module.exports = {
           
           return null;
         } catch (err) {
-          console.log('Digitransit search query parsing failed');
+          console.log(`Digitransit search query parsing failed: ${err}`);
         }
       })
       .catch((err) => {
@@ -65,12 +65,12 @@ module.exports = {
           });
 
           return null;
-        } catch (error) {
-          console.log('Digitransit reverse query parsing failed');
+        } catch (err) {
+          console.log(`Digitransit reverse query parsing failed: ${err}`);
         }
       })
       .catch((err) => {
-        console.log(`Digitransit reverse query to ${url} returned error`);
+        console.log(`Digitransit reverse query to ${url} returned error: ${err}`);
       });
   },
 
@@ -91,12 +91,12 @@ module.exports = {
             lat: features[0].geometry.coordinates[1],
             lng: features[0].geometry.coordinates[0],
           }
-        } catch (error) {
-          console.log('Digitransit search query parsing failed');
+        } catch (err) {
+          console.log(`Digitransit search query parsing failed: ${err}`);
         }
       })
       .catch((err) => {
-        console.log(`Digitransit search query to ${url} returned error`);
+        console.log(`Digitransit search query to ${url} returned error: ${err}`);
       });
 
     return reply;

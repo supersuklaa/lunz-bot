@@ -6,7 +6,7 @@ const kbBuilder = require('./keyboard');
 module.exports =  {
   navigateMenus: async (ctx) => {
     const query = ctx.update.callback_query;
-    const { chat_id, markup_id, offset, places } = ctx.scene.state;
+    const { markup_id, offset, places } = ctx.scene.state;
 
     const newOffset = query.data === 'next'
       ? offset + maxVisibleBtns
@@ -21,7 +21,7 @@ module.exports =  {
         : buttons;
 
       await ctx.telegram.editMessageReplyMarkup(
-        chat_id,
+        ctx.from.id,
         markup_id,
         null,
         { inline_keyboard: keyboard }
@@ -31,7 +31,7 @@ module.exports =  {
 
       return ctx.answerCbQuery(null);
     } catch (err) {
-      console.log('Markup editing failed');
+      console.log(`Markup editing failed: ${err}`);
     }
   },
 
@@ -53,7 +53,7 @@ module.exports =  {
       };
       const reply = ctx.scene.state.message_id ?
         await ctx.telegram.editMessageText(
-          ctx.scene.state.chat_id,
+          ctx.from.id,
           ctx.scene.state.message_id,
           null,
           text,
@@ -74,37 +74,33 @@ module.exports =  {
   sendLocation: async (ctx) => {
     try {
       const current = ctx.scene.state.current_place;
-      const { places, chat_id } = ctx.scene.state;
-      const place = places.find(p => p.name === current);
+      const place = ctx.scene.state.places.find(p => p.name === current);
       
       const { lat, lng } = await search.address(place.address);
 
-      const reply = await ctx.telegram.sendLocation(chat_id, lat, lng);
+      const reply = await ctx.telegram.sendLocation(ctx.from.id, lat, lng);
 
       ctx.scene.state.map = reply.message_id;
 
       return ctx.answerCbQuery(null);
-    } catch (error) {
-      console.log('Sending location failed');
+    } catch (err) {
+      console.log(`Sending location failed: ${err}`);
     }
   },
 
   deleteLocation: async (ctx) => {
     try {
-      ctx.telegram.deleteMessage(
-        ctx.scene.state.chat_id,
-        ctx.scene.state.map,
-      );
+      ctx.telegram.deleteMessage(ctx.from.id, ctx.scene.state.map);
       ctx.scene.state.map = null;
-    } catch (error) {
-      console.log('Deleting map message failed');
+    } catch (err) {
+      console.log(`Deleting map message failed: ${err}`);
     }
   },
 
   toggleFavorite: async (ctx) => {
     const query = ctx.update.callback_query;
     const place = ctx.scene.state.current_place;
-    const { chat_id, markup_id, places, offset } = ctx.scene.state;
+    const { markup_id, places, offset } = ctx.scene.state;
 
     const add = query.data === 'favoriteAdd';
 
@@ -136,7 +132,7 @@ module.exports =  {
         : buttons;
 
       await ctx.telegram.editMessageReplyMarkup(
-        chat_id,
+        ctx.from.id,
         markup_id,
         null,
         { inline_keyboard: menuKeyboard }
