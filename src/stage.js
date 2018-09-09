@@ -36,6 +36,11 @@ module.exports = (bot) => {
     return ctx.answerCbQuery(null);
   });
 
+  organizer.on(['location', 'message'], (ctx, next) => {
+    ctx.scene.leave();
+    return next();
+  });
+
   stage.register(organizer);
 
   bot.use(session());

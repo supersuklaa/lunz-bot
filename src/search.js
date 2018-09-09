@@ -6,7 +6,6 @@ const { createURIparams } = require('./utils');
 
 module.exports = {
   message: (ctx) => {
-    ctx.scene.leave();
     const query = createURIparams({
       size: '1',
       text: encodeURI(ctx.message.text),
@@ -40,7 +39,6 @@ module.exports = {
   },
 
   location: (ctx) => {
-    ctx.scene.leave();
     const { latitude, longitude } = ctx.message.location;
 
     const query = createURIparams({
