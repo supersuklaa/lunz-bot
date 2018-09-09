@@ -3,7 +3,6 @@ const Stage = require('telegraf/stage');
 const Scene = require('telegraf/scenes/base');
 
 const queries = require('./queries');
-const db = require('./db');
 
 module.exports = (bot) => {
   const stage = new Stage();
@@ -37,7 +36,6 @@ module.exports = (bot) => {
     return ctx.answerCbQuery(null);
   });
 
-  // Scene registration
   stage.register(organizer)
 
   bot.use(session());
