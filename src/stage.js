@@ -9,31 +9,26 @@ module.exports = (bot) => {
   const organizer = new Scene('activeMenus');
 
   organizer.on('callback_query', async (ctx) => {
-    const query = ctx.update.callback_query.data;
+    switch (ctx.update.callback_query.data) {
+      case 'next':
+      case 'prev':
+        return queries.navigateMenus(ctx);
 
-    if (query === 'next' || query === 'prev') {
-      return queries.navigateMenus(ctx);
+      case 'favoriteAdd':
+      case 'favoriteRemove':
+        return queries.toggleFavorite(ctx);
+
+      case 'location':
+        queries.deleteLocation(ctx);
+        return queries.sendLocation(ctx);
+
+      case ctx.scene.state.current_place: // Would lead to unnecessary api calls
+        return ctx.answerCbQuery(null);
+
+      default:
+        queries.deleteLocation(ctx);
+        return queries.chooseMenu(ctx);
     }
-
-    if (query === 'favoriteAdd' || query === 'favoriteRemove') {
-      return queries.toggleFavorite(ctx);
-    }
-
-    if (ctx.scene.state.map) {
-      queries.deleteLocation(ctx);
-    }
-
-    if (query === 'location') {
-      return queries.sendLocation(ctx);
-    }
-
-    const place = ctx.scene.state.places.find(p => p.name === query);
-
-    if (place && ctx.scene.state.current_place !== query) {
-      return queries.chooseMenu(ctx, place);
-    }
-
-    return ctx.answerCbQuery(null);
   });
 
   organizer.on(['location', 'message'], (ctx, next) => {
