@@ -16,7 +16,8 @@ module.exports = {
     transit: 'http://api.digitransit.fi/geocoding/v1',
   },
   db: {
-    connectStr: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production',
   },
   maxBtnsInRow: 1,
   maxVisibleBtns: 3,

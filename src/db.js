@@ -7,10 +7,7 @@ module.exports =  {
       const query = ctx.update.callback_query;
       const place = ctx.scene.state.current_place;
 
-      const client = new Client({
-        connectionString: config.db.connectStr,
-        ssl: config.env.prod,
-      });
+      const client = new Client(config.db);
       client.connect();
 
       const text = 'INSERT INTO favorites(user_id, place) VALUES($1, $2) RETURNING *';
@@ -45,10 +42,7 @@ module.exports =  {
       const place = ctx.scene.state.current_place;
       const text = `DELETE FROM favorites WHERE user_id = $1 AND place = $2 RETURNING *`;
 
-      const client = new Client({
-        connectionString: config.db.connectStr,
-        ssl: config.env.prod,
-      });
+      const client = new Client(config.db);
       client.connect();
 
       await client.query(text, [query.from.id, place])
@@ -81,10 +75,7 @@ module.exports =  {
       const text = `SELECT * FROM favorites WHERE ${keyStr}`;
       const values = Object.values(opt);
 
-      const client = new Client({
-        connectionString: config.db.connectStr,
-        ssl: config.env.prod,
-      });
+      const client = new Client(config.db);
       client.connect();
 
       const result = await client.query(text, values)
