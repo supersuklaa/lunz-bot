@@ -39,10 +39,6 @@ module.exports = async (ctx) => {
         };
       });
 
-      if (rawPlaces.length < 1) {
-        throw Error(`CSS selector ${menuItemSelector} returned 0 items`);
-      }
-
       const places = rawPlaces
         .filter(f => f.dish.length > 0 && f.time !== 'ei lounasta');
 

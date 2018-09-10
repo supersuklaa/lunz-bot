@@ -9,17 +9,13 @@ module.exports = (bot) => {
 
   bot.command('/start', start);
 
-  bot.on('location', async (ctx, next) => {
-    ctx.state.location = await search.viaLocation(ctx);
-    next();
-  });
-
-  bot.on('message', async (ctx, next) => {
-    ctx.state.location = await search.viaMessage(ctx);
-    next();
-  });
-
   bot.on(['message', 'location'], async (ctx) => {
+    if (ctx.message.location) {
+      ctx.state.location = await search.viaLocation(ctx);
+    } else {
+      ctx.state.location = await search.viaMessage(ctx);
+    }
+
     const { location } = ctx.state;
 
     if (!location) {
