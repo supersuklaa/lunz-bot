@@ -8,7 +8,7 @@ module.exports = {
 
     if (opt.address) {
       btns.push({
-        text: opt.address,
+        text: 'Sijainti',
         callback_data: 'location',
       });
     }
