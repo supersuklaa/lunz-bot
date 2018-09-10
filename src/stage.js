@@ -18,15 +18,15 @@ module.exports = (bot) => {
       case 'favoriteRemove':
         return queries.toggleFavorite(ctx);
 
-      case 'location':
+      case 'showLocation':
         queries.deleteLocation(ctx);
         return queries.sendLocation(ctx);
 
-      case 'deleteLocation':
+      case 'hideLocation':
         queries.deleteLocation(ctx);
         return ctx.answerCbQuery(null);
 
-      case ctx.scene.state.current_place: // Would lead to unnecessary api calls
+      case ctx.scene.state.current.name: // Would lead to unnecessary api calls
         return ctx.answerCbQuery(null);
 
       default:

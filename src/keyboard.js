@@ -7,24 +7,23 @@ module.exports = {
 
     const favs = await favsFor(ctx.from.id);
 
-    const place = ctx.scene.state.places
-      .find(p => p.name === ctx.scene.state.current_place);
+    const { current, map } = ctx.scene.state;
 
-    if (place.address) {
-      if (ctx.scene.state.map) {
+    if (current.address) {
+      if (map) {
         btns.push({
           text: 'Sulje sijainti',
-          callback_data: 'deleteLocation',
+          callback_data: 'hideLocation',
         });
       } else {
         btns.push({
           text: 'Sijainti',
-          callback_data: 'location',
+          callback_data: 'showLocation',
         });
       }
     }
 
-    if (favs.includes(place.name)) {
+    if (favs.includes(current.name)) {
       btns.push({
         text: 'Poista suosikeista',
         callback_data: 'favoriteRemove',

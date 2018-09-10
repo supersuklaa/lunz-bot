@@ -42,14 +42,14 @@ module.exports = {
 
   chooseMenu: async (ctx) => {
     try {
-      const place = ctx.scene.state.places
+      const current = ctx.scene.state.places
         .find(p => p.name === ctx.update.callback_query.data);
 
-      ctx.scene.state.current_place = place.name;
+      ctx.scene.state.current = current;
 
       const keyboard = await kbBuilder.optRow(ctx);
 
-      const text = `<b>${place.name}</b> <i>${place.time}</i>\n${place.dish}`;
+      const text = `<b>${current.name}</b> <i>${current.time}</i>\n${current.dish}`;
       const extra = {
         parse_mode: 'html',
         reply_markup: {
@@ -77,10 +77,9 @@ module.exports = {
 
   sendLocation: async (ctx) => {
     try {
-      const current = ctx.scene.state.current_place;
-      const place = ctx.scene.state.places.find(p => p.name === current);
+      const { current } = ctx.scene.state;
 
-      const { lat, lng } = await search.address(place.address);
+      const { lat, lng } = await search.address(current.address);
       const reply = await ctx.telegram.sendLocation(ctx.from.id, lat, lng);
 
       ctx.scene.state.map = reply.message_id;
@@ -122,16 +121,15 @@ module.exports = {
 
   toggleFavorite: async (ctx) => {
     const query = ctx.update.callback_query;
-    const place = ctx.scene.state.current_place;
-    const { places, offset } = ctx.scene.state;
+    const { places, offset, current } = ctx.scene.state;
 
     const add = query.data === 'favoriteAdd';
 
     try {
       if (add) {
-        await db.favorite.add(query.from.id, place);
+        await db.favorite.add(query.from.id, current.name);
       } else {
-        await db.favorite.remove(query.from.id, place);
+        await db.favorite.remove(query.from.id, current.name);
       }
 
       const keyboard = await kbBuilder.optRow(ctx);
@@ -145,7 +143,7 @@ module.exports = {
 
       const currentBtnIsVisible = places
         .slice(offset, offset + maxVisibleBtns)
-        .find(p => p.name === place);
+        .find(p => p.name === current.name);
 
       if (currentBtnIsVisible) { // toggle star emoji in place name
         const buttons = await kbBuilder.places(places, ctx.from.id, offset);

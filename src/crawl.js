@@ -62,6 +62,7 @@ module.exports = (ctx, location) => {
       places,
       markup_id: reply.message_id,
       offset: 0,
+      current: {},
     });
   });
 };
