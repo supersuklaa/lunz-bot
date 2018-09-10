@@ -27,14 +27,12 @@ module.exports = {
       return query;
     },
 
-    find: async (opt) => {
+    select: async (opt) => {
       const keyStr = Object.keys(opt).map((k, i) => `${k} = $${1 + i}`).join(' AND ');
       const text = `SELECT * FROM favorites WHERE ${keyStr}`;
-      const values = Object.values(opt);
+      const query = await createQuery(text, Object.values(opt));
 
-      const result = await createQuery(text, values);
-
-      return result.map(f => f.place);
+      return query;
     },
   },
 };

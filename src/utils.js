@@ -1,4 +1,5 @@
 const { maxBtnsInRow } = require('./config');
+const db = require('./db');
 
 module.exports = {
   chunk: (arr) => {
@@ -18,5 +19,11 @@ module.exports = {
     return Object.keys(params)
       .map(k => `${esc(k)}=${esc(params[k])}`)
       .join('&');
+  },
+
+  favsFor: async (user) => {
+    const favs = await db.favorite.select({ user_id: user });
+
+    return favs.map(r => r.place);
   },
 };

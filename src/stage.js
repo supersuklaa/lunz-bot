@@ -22,6 +22,10 @@ module.exports = (bot) => {
         queries.deleteLocation(ctx);
         return queries.sendLocation(ctx);
 
+      case 'deleteLocation':
+        queries.deleteLocation(ctx);
+        return ctx.answerCbQuery(null);
+
       case ctx.scene.state.current_place: // Would lead to unnecessary api calls
         return ctx.answerCbQuery(null);
 

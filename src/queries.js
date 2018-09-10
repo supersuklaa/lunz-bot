@@ -45,12 +45,9 @@ module.exports = {
       const place = ctx.scene.state.places
         .find(p => p.name === ctx.update.callback_query.data);
 
-      const favs = await db.favorite.find({ user_id: ctx.from.id });
+      ctx.scene.state.current_place = place.name;
 
-      const keyboard = await kbBuilder.tools({
-        address: place.address,
-        favorite: favs.includes(place.name) ? 'remove' : 'add',
-      });
+      const keyboard = await kbBuilder.optRow(ctx);
 
       const text = `<b>${place.name}</b> <i>${place.time}</i>\n${place.dish}`;
       const extra = {
@@ -71,7 +68,6 @@ module.exports = {
         : await ctx.reply(text, extra);
 
       ctx.scene.state.message_id = reply.message_id;
-      ctx.scene.state.current_place = place.name;
     } catch (err) {
       console.log(`Menu message editing failed: ${err}`);
     }
@@ -85,10 +81,18 @@ module.exports = {
       const place = ctx.scene.state.places.find(p => p.name === current);
 
       const { lat, lng } = await search.address(place.address);
-
       const reply = await ctx.telegram.sendLocation(ctx.from.id, lat, lng);
 
       ctx.scene.state.map = reply.message_id;
+
+      const keyboard = await kbBuilder.optRow(ctx);
+
+      await ctx.telegram.editMessageReplyMarkup(
+        ctx.update.callback_query.from.id,
+        ctx.scene.state.message_id,
+        null,
+        { inline_keyboard: keyboard },
+      );
     } catch (err) {
       console.log(`Sending location failed: ${err}`);
     }
@@ -101,6 +105,15 @@ module.exports = {
       try {
         await ctx.telegram.deleteMessage(ctx.from.id, ctx.scene.state.map);
         ctx.scene.state.map = null;
+
+        const keyboard = await kbBuilder.optRow(ctx);
+
+        await ctx.telegram.editMessageReplyMarkup(
+          ctx.update.callback_query.from.id,
+          ctx.scene.state.message_id,
+          null,
+          { inline_keyboard: keyboard },
+        );
       } catch (err) {
         console.log(`Deleting map message failed: ${err}`);
       }
@@ -120,12 +133,8 @@ module.exports = {
       } else {
         await db.favorite.remove(query.from.id, place);
       }
-      const { address } = places.find(p => p.name === place);
 
-      const keyboard = await kbBuilder.tools({
-        address,
-        favorite: add ? 'remove' : 'add',
-      });
+      const keyboard = await kbBuilder.optRow(ctx);
 
       await ctx.telegram.editMessageReplyMarkup(
         query.from.id,

@@ -1,37 +1,46 @@
-const { chunk } = require('./utils');
-const db = require('./db');
+const { chunk, favsFor } = require('./utils');
 const { maxVisibleBtns } = require('./config');
 
 module.exports = {
-  tools: async (opt) => {
+  optRow: async (ctx) => {
     const btns = [];
 
-    if (opt.address) {
-      btns.push({
-        text: 'Sijainti',
-        callback_data: 'location',
-      });
-    }
+    const favs = await favsFor(ctx.from.id);
 
-    if (opt.favorite) {
-      if (opt.favorite === 'remove') {
+    const place = ctx.scene.state.places
+      .find(p => p.name === ctx.scene.state.current_place);
+
+    if (place.address) {
+      if (ctx.scene.state.map) {
         btns.push({
-          text: 'Poista suosikeista',
-          callback_data: 'favoriteRemove',
+          text: 'Sulje sijainti',
+          callback_data: 'deleteLocation',
         });
-      } else if (opt.favorite === 'add') {
+      } else {
         btns.push({
-          text: 'Lisää suosikkeihin',
-          callback_data: 'favoriteAdd',
+          text: 'Sijainti',
+          callback_data: 'location',
         });
       }
+    }
+
+    if (favs.includes(place.name)) {
+      btns.push({
+        text: 'Poista suosikeista',
+        callback_data: 'favoriteRemove',
+      });
+    } else {
+      btns.push({
+        text: 'Lisää suosikkeihin',
+        callback_data: 'favoriteAdd',
+      });
     }
 
     return [btns];
   },
 
   places: async (places, user, offset = 0) => {
-    const favs = await db.favorite.find({ user_id: user });
+    const favs = await favsFor(user);
 
     const buttons = places
       .slice(offset, offset + maxVisibleBtns)
