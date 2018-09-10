@@ -172,4 +172,33 @@ module.exports = {
 
     return ctx.answerCbQuery(null);
   },
+
+  sendBrowser: async (ctx) => {
+    try {
+      const { places } = ctx.scene.state;
+
+      if (places.length < 1) {
+        return ctx.reply('Ei löytynyt lounasta tällä sijainnilla juuri nyt! Kannattaa vielä kokeilla keskeisemmällä sijainnilla jos mahdollista 🙂');
+      }
+
+      const buttons = await kbBuilder.places(places, ctx.from.id);
+
+      const navigation = kbBuilder.nav(places.length);
+      const keyboard = navigation
+        ? buttons.concat([navigation])
+        : buttons;
+
+      const reply = await ctx.reply(
+        `Osoitteen ${ctx.state.location.formattedAddress} lähistöltä löytyi:`, {
+          reply_markup: { inline_keyboard: keyboard },
+        },
+      );
+
+      ctx.scene.state.markup_id = reply.message_id;
+    } catch (err) {
+      console.log(`Sending first message with places failed: ${err}`);
+    }
+
+    return null;
+  },
 };

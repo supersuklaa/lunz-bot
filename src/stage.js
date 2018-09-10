@@ -6,9 +6,9 @@ const queries = require('./queries');
 
 module.exports = (bot) => {
   const stage = new Stage();
-  const organizer = new Scene('activeMenus');
+  const browser = new Scene('browse');
 
-  organizer.on('callback_query', async (ctx) => {
+  browser.on('callback_query', async (ctx) => {
     switch (ctx.update.callback_query.data) {
       case 'next':
       case 'prev':
@@ -35,12 +35,12 @@ module.exports = (bot) => {
     }
   });
 
-  organizer.on(['location', 'message'], (ctx, next) => {
+  browser.on(['location', 'message'], (ctx, next) => {
     ctx.scene.leave();
     return next();
   });
 
-  stage.register(organizer);
+  stage.register(browser);
 
   bot.use(session());
   bot.use(stage.middleware());

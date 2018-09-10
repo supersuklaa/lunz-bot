@@ -1,11 +1,10 @@
 const rp = require('request-promise');
 
-const crawl = require('./crawl');
 const { urls } = require('./config');
 const { createURIparams } = require('./utils');
 
 module.exports = {
-  message: (ctx) => {
+  viaMessage: (ctx) => {
     const query = createURIparams({
       size: '1',
       text: encodeURI(ctx.message.text),
@@ -13,20 +12,20 @@ module.exports = {
 
     const url = `${urls.transit}/search?${query}`;
 
-    rp(url)
+    return rp(url)
       .then((res) => {
         try {
           const { features } = JSON.parse(res);
 
           if (features.length < 1) {
-            return ctx.reply('Hakusi ei palauttanut ainuttakaan osoitetta.');
+            return { errMsg: 'Hakusi ei palauttanut ainuttakaan osoitetta.' };
           }
 
-          crawl(ctx, {
+          return {
             lat: features[0].geometry.coordinates[1],
             lng: features[0].geometry.coordinates[0],
             formattedAddress: features[0].properties.label,
-          });
+          };
         } catch (err) {
           console.log(`Digitransit search query parsing failed: ${err}`);
         }
@@ -38,7 +37,7 @@ module.exports = {
       });
   },
 
-  location: (ctx) => {
+  viaLocation: (ctx) => {
     const { latitude, longitude } = ctx.message.location;
 
     const query = createURIparams({
@@ -49,18 +48,18 @@ module.exports = {
 
     const url = `${urls.transit}/reverse?${query}`;
 
-    rp(url)
+    return rp(url)
       .then((res) => {
         try {
           const { features } = JSON.parse(res);
 
           const { name, postalcode, locality } = features[0].properties;
 
-          crawl(ctx, {
+          return {
             lat: features[0].geometry.coordinates[1],
             lng: features[0].geometry.coordinates[0],
             formattedAddress: `${name}, ${postalcode} ${locality}`,
-          });
+          };
         } catch (err) {
           console.log(`Digitransit reverse query parsing failed: ${err}`);
         }
