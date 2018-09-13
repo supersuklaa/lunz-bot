@@ -11,25 +11,23 @@ module.exports = (bot) => {
 
   bot.on(['message', 'location'], async (ctx) => {
     if (ctx.message.location) {
-      ctx.state.location = await search.viaLocation(ctx);
+      ctx.state.location = await search.via.location(ctx.message.location);
     } else {
-      ctx.state.location = await search.viaMessage(ctx);
+      ctx.state.location = await search.via.text(ctx.message.text);
     }
 
-    const { location } = ctx.state;
-
-    if (!location) {
+    if (!ctx.state.location) {
       return null;
     }
 
-    if (location.errMsg) {
-      return ctx.reply(location.errMsg);
+    if (ctx.state.location.errMsg) {
+      return ctx.reply(ctx.state.location.errMsg);
     }
 
     await crawl(ctx);
 
     if (!ctx.scene.state.places) {
-      return null;
+      return ctx.reply('Lounastietojen haku epäonnistui, pahoittelut.');
     }
 
     return queries.sendBrowser(ctx);

@@ -77,9 +77,7 @@ module.exports = {
 
   sendLocation: async (ctx) => {
     try {
-      const { current } = ctx.scene.state;
-
-      const { lat, lng } = await search.address(current.address);
+      const { lat, lng } = await search.via.text(ctx.scene.state.current.address);
       const reply = await ctx.telegram.sendLocation(ctx.from.id, lat, lng);
 
       ctx.scene.state.map = reply.message_id;

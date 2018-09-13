@@ -66,7 +66,7 @@ module.exports = {
       return null;
     }
 
-    if (offset - maxVisibleBtns < 0) {
+    if (offset < maxVisibleBtns) {
       return [nextBtn];
     }
 
