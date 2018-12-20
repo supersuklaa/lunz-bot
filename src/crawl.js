@@ -3,6 +3,7 @@ const rp = require('request-promise');
 const tough = require('tough-cookie');
 
 const { urls } = require('./config');
+const { favsFor } = require('./utils');
 
 module.exports = async (ctx) => {
   const cookie = new tough.Cookie({
@@ -25,8 +26,8 @@ module.exports = async (ctx) => {
       const rawPlaces = [];
       const menuItemSelector = 'div.menu.item';
 
-      $(menuItemSelector).each(function (i) {
-        rawPlaces[i] = {
+      $(menuItemSelector).each(function () {
+        const p = {
           name: $(this).find('.item-header > h3').text(),
           time: $(this).find('.details > p.lunch').text(),
           dish: $(this).find('.menu-item p').map(function () {
@@ -37,10 +38,19 @@ module.exports = async (ctx) => {
             .join('\n'),
           address: $(this).find('.item-footer > .dist').attr('title'),
         };
+
+        if (p.dish.length > 0 && p.time !== 'ei lounasta') {
+          rawPlaces.push(p);
+        }
       });
 
-      const places = rawPlaces
-        .filter(f => f.dish.length > 0 && f.time !== 'ei lounasta');
+      const favs = await favsFor(ctx.from.id);
+
+      let places = rawPlaces;
+
+      if (favs.length > 0) {
+        places = places.sort((a, b) => favs.indexOf(b.name));
+      }
 
       return ctx.scene.enter('browse', {
         places,

@@ -17,7 +17,7 @@ module.exports = {
   },
   db: {
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production',
+    ssl: process.env.DATABASE_SSL === 'ON',
   },
   maxBtnsInRow: 1,
   maxVisibleBtns: 3,
