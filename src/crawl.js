@@ -49,7 +49,8 @@ module.exports = async (ctx) => {
       let places = rawPlaces;
 
       if (favs.length > 0) {
-        places = places.sort((a, b) => favs.indexOf(b.name));
+        places = places
+          .sort((a, b) => favs.indexOf(b.name) - favs.indexOf(a.name));
       }
 
       return ctx.scene.enter('browse', {
