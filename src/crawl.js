@@ -29,10 +29,10 @@ module.exports = async (ctx) => {
       $(menuItemSelector).each(function () {
         const p = {
           name: $(this).find('.item-header > h3').text(),
-          time: $(this).find('.details > p.lunch').text(),
-          dish: $(this).find('.menu-item p').map(function () {
+          time: $(this).find('.details > p.lunch').text().trim(),
+          dish: $(this).find('.menu-item p.dish').map(function () {
             return $(this).text().split(' ')
-              .filter(t => t.length > 0)
+              .filter(t => t.length > 1)
               .join(' ');
           }).get()
             .join('\n'),
